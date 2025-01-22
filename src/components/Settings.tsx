@@ -3,25 +3,27 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import type { LeagueSettings } from '../types';
 
 const defaultSettings: LeagueSettings = {
-  hittingCategories: ['AVG', 'HR', 'RBI', 'R', 'SB'],
-  pitchingCategories: ['ERA', 'WHIP', 'W', 'SV', 'K'],
+  hittingCategories: ['OPS', 'HR', 'RBI', 'R', 'SB', 'SLG'],
+  pitchingCategories: ['ERA', 'WHIP', 'W+QS', 'SVH', 'K', 'K/9'],
   positions: {
-    'C': 2,
+    'C': 1,
     '1B': 1,
     '2B': 1,
     '3B': 1,
     'SS': 1,
     'CI': 1,
     'MI': 1,
-    'OF': 3,
-    'UTIL': 2,
-    'P': 9,
+    'OF': 4,
+    'UTIL': 1,
+    'SP': 3,
+    'RP': 2,
+    'P': 3,
     'BN': 5
   },
-  numTeams: 12,
-  draftOrder: Array.from({ length: 12 }, (_, i) => i + 1),
+  numTeams: 10,
+  draftOrder: Array.from({ length: 10 }, (_, i) => i + 1),
   ohtaniRule: 'separate',
-  teamNames: Array.from({ length: 12 }, (_, i) => `Team ${i + 1}`)
+  teamNames: Array.from({ length: 10 }, (_, i) => `Team ${i + 1}`)
 };
 
 export function Settings() {

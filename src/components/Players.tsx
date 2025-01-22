@@ -18,7 +18,7 @@ export function Players({
   players = [], 
   hittingProjections = {}, 
   pitchingProjections = {},
-  availablePositions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'P', 'DH']
+  availablePositions = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'DH']
 }: PlayersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<string>('ALL');

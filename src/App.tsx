@@ -59,8 +59,8 @@ const mockPitchingProjections = {
 };
 
 const mockLeagueSettings = {
-  hittingCategories: ['AVG', 'HR', 'RBI', 'R', 'SB'],
-  pitchingCategories: ['ERA', 'WHIP', 'W', 'SV', 'K'],
+  hittingCategories: ['OBP', 'HR', 'RBI', 'R', 'SB', 'SLG'],
+  pitchingCategories: ['ERA', 'WHIP', 'W+QS', 'SVH', 'K', 'K/9'],
   positions: {
     'C': 2,
     '1B': 1,
@@ -71,7 +71,9 @@ const mockLeagueSettings = {
     'MI': 1,
     'OF': 3,
     'UTIL': 2,
-    'P': 9,
+    'SP': 3,
+    'RP': 2,
+    'P': 3,
     'BN': 5
   },
   numTeams: 12,
@@ -128,7 +130,7 @@ function App() {
             players={mockPlayers}
             hittingProjections={mockHittingProjections}
             pitchingProjections={mockPitchingProjections}
-            availablePositions={['C', '1B', '2B', '3B', 'SS', 'OF', 'P', 'DH', 'UTIL']}
+            availablePositions={['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP', 'UTIL']}
           />
         )}
         {activeTab === 'positions' && (
