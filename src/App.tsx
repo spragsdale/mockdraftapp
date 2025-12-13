@@ -7,6 +7,7 @@ import { Keepers } from '@/components/config/Keepers';
 import { PlayerList } from '@/components/players/PlayerList';
 import { PlayerImport } from '@/components/players/PlayerImport';
 import { TierEditor } from '@/components/players/TierEditor';
+import { usePlayers } from '@/hooks/usePlayers';
 import { DraftPlanBuilder } from '@/components/planning/DraftPlanBuilder';
 import { DraftBoard } from '@/components/draft/DraftBoard';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { Plus } from 'lucide-react';
 
 function App() {
   const { toast } = useToast();
+  const { players } = usePlayers();
   const [leagues, setLeagues] = useState<League[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -252,7 +254,7 @@ function App() {
 
               <TabsContent value="players" className="space-y-4">
                 <PlayerImport />
-                <PlayerList />
+                <PlayerList players={players} />
                 <TierEditor />
               </TabsContent>
 
