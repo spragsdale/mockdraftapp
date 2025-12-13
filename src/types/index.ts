@@ -1,5 +1,5 @@
 // Player types
-export type Position = 'C' | '1B' | '2B' | 'SS' | '3B' | 'OF' | 'SP' | 'RP' | 'UTIL';
+export type Position = 'C' | '1B' | '2B' | 'SS' | '3B' | 'OF' | 'SP' | 'RP' | 'UTIL' | 'CI' | 'MI';
 
 export interface Player {
   id: string;

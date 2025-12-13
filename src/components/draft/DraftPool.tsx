@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import type { Player, Position } from '@/types';
+import { playerQualifiesForPosition } from '@/lib/utils';
 
 interface DraftPoolProps {
   players: Player[];
@@ -17,7 +19,8 @@ export function DraftPool({ players, onPlayerSelect }: DraftPoolProps) {
 
   const filteredPlayers = useMemo(() => {
     return players.filter((player) => {
-      const matchesPosition = positionFilter === 'all' || player.positions.includes(positionFilter);
+      const matchesPosition =
+        positionFilter === 'all' || playerQualifiesForPosition(player.positions, positionFilter);
       const matchesTier = tierFilter === 'all' || player.tier?.toString() === tierFilter;
       const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesPosition && matchesTier && matchesSearch;
@@ -48,7 +51,7 @@ export function DraftPool({ players, onPlayerSelect }: DraftPoolProps) {
     return grouped;
   }, [filteredPlayers]);
 
-  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL'];
+  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
   const tiers = ['all', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
   return (

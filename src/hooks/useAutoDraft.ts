@@ -1,5 +1,6 @@
-import type { Player, Team, DraftPick, PositionalRequirement } from '@/types';
+import type { Player, Team, DraftPick, PositionalRequirement, Position } from '@/types';
 import { draftsApi } from '@/lib/api/drafts';
+import { playerQualifiesForPosition } from '@/lib/utils';
 
 export function useAutoDraft() {
   const calculatePositionalNeeds = (
@@ -20,9 +21,12 @@ export function useAutoDraft() {
     teamPicks.forEach((pick) => {
       const player = players.get(pick.player_id);
       if (player) {
-        player.positions.forEach((pos) => {
-          const current = filled.get(pos) || 0;
-          filled.set(pos, current + 1);
+        // Check each required position to see if this player fills it
+        needs.forEach((required, position) => {
+          if (playerQualifiesForPosition(player.positions, position)) {
+            const current = filled.get(position) || 0;
+            filled.set(position, current + 1);
+          }
         });
       }
     });
@@ -63,8 +67,9 @@ export function useAutoDraft() {
 
     // First, try to fill a positional need
     for (const player of sorted) {
-      for (const position of player.positions) {
-        if (positionalNeeds.has(position) && (positionalNeeds.get(position) || 0) > 0) {
+      // Check if player qualifies for any needed position (including composite positions)
+      for (const [position, needed] of positionalNeeds.entries()) {
+        if (needed > 0 && playerQualifiesForPosition(player.positions, position)) {
           return player;
         }
       }

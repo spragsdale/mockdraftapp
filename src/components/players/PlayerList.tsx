@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Player, Position } from '@/types';
+import { playerQualifiesForPosition } from '@/lib/utils';
 import { PlayerTable } from './PlayerTable';
 
 interface PlayerListProps {
@@ -19,12 +20,12 @@ export function PlayerList({ players, onPlayerClick }: PlayerListProps) {
     return players.filter((player) => {
       const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPosition =
-        positionFilter === 'all' || player.positions.includes(positionFilter);
+        positionFilter === 'all' || playerQualifiesForPosition(player.positions, positionFilter);
       return matchesSearch && matchesPosition;
     });
   }, [players, searchTerm, positionFilter]);
 
-  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL'];
+  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
 
   return (
     <Card>
