@@ -16,15 +16,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { leaguesApi } from '@/lib/api/leagues';
 import { draftsApi } from '@/lib/api/drafts';
 import { useToast } from '@/components/ui/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { Login } from '@/components/auth/Login';
 import type { League, Draft, Team } from '@/types';
 import { useEffect } from 'react';
-import { Plus, LogOut } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 function App() {
   const { toast } = useToast();
-  const { user, loading: authLoading, signOut } = useAuth();
   const { players } = usePlayers();
   const [leagues, setLeagues] = useState<League[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
@@ -163,43 +160,15 @@ function App() {
     }
   };
 
-  if (authLoading) {
-    return <div className="p-8">Loading...</div>;
-  }
-
-  if (!user) {
-    return (
-      <>
-        <Toaster />
-        <Login />
-      </>
-    );
-  }
-
   if (loading) {
     return <div className="p-8">Loading...</div>;
   }
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: 'Signed out',
-      description: 'You have been signed out successfully',
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 space-y-4">
-        <header className="border-b pb-4 flex justify-between items-center">
+        <header className="border-b pb-4">
           <h1 className="text-3xl font-bold">Fantasy Baseball Mock Draft</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user.email}</span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
