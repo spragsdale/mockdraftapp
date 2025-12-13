@@ -7,6 +7,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase URL or Anon Key not found in environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Get the current origin for redirect URLs
+const getRedirectUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return '';
+};
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    redirectTo: getRedirectUrl(),
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
 
 
