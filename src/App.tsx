@@ -61,8 +61,8 @@ function App() {
       });
     } finally {
       setLoading(false);
-    }
-  };
+  }
+};
 
   const loadDrafts = async () => {
     if (!selectedLeague) return;
