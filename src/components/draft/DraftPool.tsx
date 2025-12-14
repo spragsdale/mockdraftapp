@@ -51,7 +51,7 @@ export function DraftPool({ players, onPlayerSelect }: DraftPoolProps) {
     return grouped;
   }, [filteredPlayers]);
 
-  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
+  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI', 'BEN'];
   const tiers = ['all', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
   return (

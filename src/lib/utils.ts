@@ -10,8 +10,14 @@ export function cn(...inputs: ClassValue[]) {
  * Check if a player qualifies for a composite position
  * CI (Corner Infield) = 1B or 3B
  * MI (Middle Infield) = 2B or SS
+ * BEN (Bench) = Any player qualifies
  */
 export function playerQualifiesForPosition(playerPositions: Position[], targetPosition: Position): boolean {
+  // Bench position - any player qualifies
+  if (targetPosition === 'BEN') {
+    return true;
+  }
+
   // Direct match
   if (playerPositions.includes(targetPosition)) {
     return true;

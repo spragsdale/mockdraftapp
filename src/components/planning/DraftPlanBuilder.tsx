@@ -14,7 +14,7 @@ interface DraftPlanBuilderProps {
   totalPicks: number;
 }
 
-const POSITIONS: (Position | '')[] = ['', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
+const POSITIONS: (Position | '')[] = ['', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI', 'BEN'];
 
 export function DraftPlanBuilder({ draft, totalPicks }: DraftPlanBuilderProps) {
   const { plans, bulkUpsertPlans } = useDraftPlan(draft.id);

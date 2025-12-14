@@ -25,7 +25,7 @@ export function PlayerList({ players, onPlayerClick }: PlayerListProps) {
     });
   }, [players, searchTerm, positionFilter]);
 
-  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
+  const positions: (Position | 'all')[] = ['all', 'C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI', 'BEN'];
 
   return (
     <Card>

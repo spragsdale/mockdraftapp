@@ -14,7 +14,7 @@ interface LeagueSettingsProps {
   onSave: (league: League) => void;
 }
 
-const POSITIONS: Position[] = ['C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI'];
+const POSITIONS: Position[] = ['C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI', 'BEN'];
 
 export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
   const { toast } = useToast();
