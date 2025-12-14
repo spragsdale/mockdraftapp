@@ -86,19 +86,19 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>League Settings</CardTitle>
-        <CardDescription>Configure your league's positional requirements and settings</CardDescription>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">League Settings</CardTitle>
+        <CardDescription className="text-sm">Configure your league's positional requirements and settings</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">League Name</Label>
-          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="My League" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="teams">Number of Teams</Label>
+      <CardContent className="space-y-3">
+        {/* First row: League name, teams, roster */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="name" className="text-xs">League Name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="My League" className="h-9" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="teams" className="text-xs">Teams</Label>
             <Input
               id="teams"
               type="number"
@@ -106,10 +106,11 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
               max="20"
               value={numberOfTeams}
               onChange={(e) => setNumberOfTeams(parseInt(e.target.value) || 12)}
+              className="h-9"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="roster">Roster Size</Label>
+          <div className="space-y-1">
+            <Label htmlFor="roster" className="text-xs">Roster Size</Label>
             <Input
               id="roster"
               type="number"
@@ -117,27 +118,28 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
               max="50"
               value={rosterSize}
               onChange={(e) => setRosterSize(parseInt(e.target.value) || 23)}
+              className="h-9"
             />
           </div>
         </div>
 
-        <div className="space-y-2">
+        {/* Positional Requirements - Compact grid */}
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label>Positional Requirements</Label>
-            <Button type="button" variant="outline" size="sm" onClick={addRequirement}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Position
+            <Label className="text-xs font-semibold">Positional Requirements</Label>
+            <Button type="button" variant="outline" size="sm" onClick={addRequirement} className="h-7 text-xs px-2">
+              <Plus className="h-3 w-3 mr-1" />
+              Add
             </Button>
           </div>
-
-          <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
             {requirements.map((req, index) => (
-              <div key={index} className="flex gap-2 items-center">
+              <div key={index} className="flex gap-1.5 items-center">
                 <Select
                   value={req.position}
                   onValueChange={(value: Position) => updateRequirement(index, { position: value })}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-20 h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -153,39 +155,40 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
                   min="0"
                   value={req.required}
                   onChange={(e) => updateRequirement(index, { required: parseInt(e.target.value) || 0 })}
-                  className="w-24"
+                  className="w-14 h-8 text-xs"
                 />
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeRequirement(index)}>
-                  <Trash2 className="h-4 w-4" />
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeRequirement(index)} className="h-8 w-8">
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Scoring Categories</Label>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Hitters</Label>
-              <div className="flex flex-wrap gap-2">
+        {/* Scoring Categories - Compact inline */}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold">Scoring Categories</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Hitters</Label>
+              <div className="flex flex-wrap gap-1">
                 {scoringCategories.hitters.map((category) => (
                   <span
                     key={category}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                   >
                     {category}
                   </span>
                 ))}
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Pitchers</Label>
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Pitchers</Label>
+              <div className="flex flex-wrap gap-1">
                 {scoringCategories.pitchers.map((category) => (
                   <span
                     key={category}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                   >
                     {category}
                   </span>
@@ -195,7 +198,7 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
           </div>
         </div>
 
-        <Button onClick={handleSave} className="w-full">
+        <Button onClick={handleSave} className="w-full h-9 mt-2">
           Save League Settings
         </Button>
       </CardContent>
