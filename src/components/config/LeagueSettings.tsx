@@ -16,6 +16,12 @@ interface LeagueSettingsProps {
 
 const POSITIONS: Position[] = ['C', '1B', '2B', 'SS', '3B', 'OF', 'SP', 'RP', 'UTIL', 'CI', 'MI', 'BEN'];
 
+// Default scoring categories
+const DEFAULT_SCORING_CATEGORIES = {
+  hitters: ['RBI', 'Runs', 'SB', 'HR', 'OBP', 'SLG'],
+  pitchers: ['W+QS', 'ERA', 'WHIP', 'SO', 'K/9', 'SV+HLD'],
+};
+
 export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
   const { toast } = useToast();
   const [name, setName] = useState(league?.name || '');
@@ -24,6 +30,7 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
   const [requirements, setRequirements] = useState<PositionalRequirement[]>(
     league?.positional_requirements || []
   );
+  const scoringCategories = league?.scoring_categories || DEFAULT_SCORING_CATEGORIES;
 
   const addRequirement = () => {
     setRequirements([...requirements, { position: 'C', required: 1 }]);
@@ -53,6 +60,7 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
         number_of_teams: numberOfTeams,
         roster_size: rosterSize,
         positional_requirements: requirements,
+        scoring_categories: scoringCategories,
       };
 
       let savedLeague: League;
@@ -152,6 +160,38 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
                 </Button>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Scoring Categories</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Hitters</Label>
+              <div className="flex flex-wrap gap-2">
+                {scoringCategories.hitters.map((category) => (
+                  <span
+                    key={category}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Pitchers</Label>
+              <div className="flex flex-wrap gap-2">
+                {scoringCategories.pitchers.map((category) => (
+                  <span
+                    key={category}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

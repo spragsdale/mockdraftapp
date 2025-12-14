@@ -19,12 +19,18 @@ export interface PositionalRequirement {
   required: number;
 }
 
+export interface ScoringCategories {
+  hitters: string[];
+  pitchers: string[];
+}
+
 export interface League {
   id: string;
   name: string;
   positional_requirements: PositionalRequirement[];
   number_of_teams: number;
   roster_size: number;
+  scoring_categories?: ScoringCategories;
   created_at?: string;
   updated_at?: string;
 }
