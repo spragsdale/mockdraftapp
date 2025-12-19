@@ -115,7 +115,12 @@ export function PlayerImport() {
 
     try {
       const text = await hitterFile.text();
-      const parsed = parseHitterProjections(text);
+      let parsed;
+      try {
+        parsed = parseHitterProjections(text);
+      } catch (parseError: any) {
+        throw new Error(`CSV parsing error: ${parseError?.message || 'Invalid CSV format'}`);
+      }
       rowsProcessed = parsed.length;
 
       if (parsed.length === 0) {
@@ -237,10 +242,26 @@ export function PlayerImport() {
         description: `Imported ${rowsSuccessful} hitter projections`,
       });
       setHitterFile(null);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error importing hitter projections:', error);
+      let errorMessage = 'Failed to import hitter projections';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      // Check for common database errors
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+        errorMessage = 'Database columns missing. Please run migration 003_add_player_stats.sql in Supabase.';
+      }
+
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to import hitter projections',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -369,10 +390,26 @@ export function PlayerImport() {
         description: `Imported ${rowsSuccessful} pitcher projections`,
       });
       setPitcherFile(null);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error importing pitcher projections:', error);
+      let errorMessage = 'Failed to import pitcher projections';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      // Check for common database errors
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+        errorMessage = 'Database columns missing. Please run migration 003_add_player_stats.sql in Supabase.';
+      }
+
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to import pitcher projections',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -450,10 +487,21 @@ export function PlayerImport() {
         description: `Updated ${rowsSuccessful} players with auction values`,
       });
       setAuctionFile(null);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error importing auction values:', error);
+      let errorMessage = 'Failed to import auction values';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to import auction values',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
