@@ -60,8 +60,13 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
         number_of_teams: numberOfTeams,
         roster_size: rosterSize,
         positional_requirements: requirements,
-        scoring_categories: scoringCategories,
+        scoring_categories: scoringCategories || DEFAULT_SCORING_CATEGORIES,
       };
+
+      // Ensure scoring_categories is properly formatted
+      if (!leagueData.scoring_categories) {
+        leagueData.scoring_categories = DEFAULT_SCORING_CATEGORIES;
+      }
 
       let savedLeague: League;
       if (league) {
@@ -75,10 +80,26 @@ export function LeagueSettings({ league, onSave }: LeagueSettingsProps) {
         description: 'League settings saved',
       });
       onSave(savedLeague);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error saving league settings:', error);
+      let errorMessage = 'Failed to save league settings';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      // Check for common database errors
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+        errorMessage = 'Database column missing. Please run migration 002_add_scoring_categories.sql in Supabase.';
+      }
+
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to save league settings',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
