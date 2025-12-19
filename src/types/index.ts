@@ -9,6 +9,45 @@ export interface Player {
   auction_value: number | null;
   tier: number | null;
   team?: string;
+  // Hitter stats
+  g?: number | null;
+  pa?: number | null;
+  ab?: number | null;
+  h?: number | null;
+  doubles?: number | null;
+  triples?: number | null;
+  runs?: number | null;
+  rbi?: number | null;
+  bb?: number | null;
+  so?: number | null;
+  hbp?: number | null;
+  cs?: number | null;
+  avg?: number | null;
+  obp?: number | null;
+  slg?: number | null;
+  ops?: number | null;
+  woba?: number | null;
+  wrc_plus?: number | null;
+  bsr?: number | null;
+  fld?: number | null;
+  off?: number | null;
+  def?: number | null;
+  war?: number | null;
+  // Pitcher stats
+  gs?: number | null;
+  ip?: number | null;
+  w?: number | null;
+  l?: number | null;
+  qs?: number | null;
+  sv?: number | null;
+  hld?: number | null;
+  er?: number | null;
+  whip?: number | null;
+  k_per_9?: number | null;
+  bb_per_9?: number | null;
+  era?: number | null;
+  fip?: number | null;
+  ra9_war?: number | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -109,6 +148,18 @@ export interface DraftState {
   picks: DraftPick[];
   availablePlayers: Player[];
   userTeamId: string | null;
+}
+
+// Import types
+export type ImportType = 'hitter_projections' | 'pitcher_projections' | 'auction_values';
+
+export interface ImportHistory {
+  id: string;
+  import_type: ImportType;
+  filename: string;
+  uploaded_at: string;
+  rows_processed?: number | null;
+  rows_successful?: number | null;
 }
 
 
