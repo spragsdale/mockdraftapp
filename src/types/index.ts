@@ -151,7 +151,7 @@ export interface DraftState {
 }
 
 // Import types
-export type ImportType = 'hitter_projections' | 'pitcher_projections' | 'auction_values';
+export type ImportType = 'hitter_projections' | 'pitcher_projections' | 'hitter_auction_values' | 'pitcher_auction_values';
 
 export interface ImportHistory {
   id: string;

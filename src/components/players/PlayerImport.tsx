@@ -81,15 +81,18 @@ export function PlayerImport() {
 
   const [hitterFile, setHitterFile] = useState<File | null>(null);
   const [pitcherFile, setPitcherFile] = useState<File | null>(null);
-  const [auctionFile, setAuctionFile] = useState<File | null>(null);
+  const [hitterAuctionFile, setHitterAuctionFile] = useState<File | null>(null);
+  const [pitcherAuctionFile, setPitcherAuctionFile] = useState<File | null>(null);
 
   const [hitterLoading, setHitterLoading] = useState(false);
   const [pitcherLoading, setPitcherLoading] = useState(false);
-  const [auctionLoading, setAuctionLoading] = useState(false);
+  const [hitterAuctionLoading, setHitterAuctionLoading] = useState(false);
+  const [pitcherAuctionLoading, setPitcherAuctionLoading] = useState(false);
 
   const [lastHitterUpload, setLastHitterUpload] = useState<ImportHistory | null>(null);
   const [lastPitcherUpload, setLastPitcherUpload] = useState<ImportHistory | null>(null);
-  const [lastAuctionUpload, setLastAuctionUpload] = useState<ImportHistory | null>(null);
+  const [lastHitterAuctionUpload, setLastHitterAuctionUpload] = useState<ImportHistory | null>(null);
+  const [lastPitcherAuctionUpload, setLastPitcherAuctionUpload] = useState<ImportHistory | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
@@ -104,7 +107,7 @@ export function PlayerImport() {
       try {
         console.log('[PlayerImport] Starting to fetch upload history for all types...');
         
-        const [hitter, pitcher, auction] = await Promise.all([
+        const [hitter, pitcher, hitterAuction, pitcherAuction] = await Promise.all([
           importHistoryApi.getLatest('hitter_projections').catch((err) => {
             console.warn('[PlayerImport] Failed to fetch hitter upload history:', err);
             return null;
@@ -113,16 +116,21 @@ export function PlayerImport() {
             console.warn('[PlayerImport] Failed to fetch pitcher upload history:', err);
             return null;
           }),
-          importHistoryApi.getLatest('auction_values').catch((err) => {
-            console.warn('[PlayerImport] Failed to fetch auction upload history:', err);
+          importHistoryApi.getLatest('hitter_auction_values').catch((err) => {
+            console.warn('[PlayerImport] Failed to fetch hitter auction upload history:', err);
+            return null;
+          }),
+          importHistoryApi.getLatest('pitcher_auction_values').catch((err) => {
+            console.warn('[PlayerImport] Failed to fetch pitcher auction upload history:', err);
             return null;
           }),
         ]);
         
-        console.log('[PlayerImport] Upload history fetched:', { hitter, pitcher, auction });
+        console.log('[PlayerImport] Upload history fetched:', { hitter, pitcher, hitterAuction, pitcherAuction });
         setLastHitterUpload(hitter);
         setLastPitcherUpload(pitcher);
-        setLastAuctionUpload(auction);
+        setLastHitterAuctionUpload(hitterAuction);
+        setLastPitcherAuctionUpload(pitcherAuction);
         setIsLoadingHistory(false);
       } catch (error: any) {
         console.error('[PlayerImport] Critical error fetching upload history:', error);
@@ -485,15 +493,15 @@ export function PlayerImport() {
     }
   };
 
-  const handleAuctionUpload = async () => {
-    if (!auctionFile) return;
+  const handleHitterAuctionUpload = async () => {
+    if (!hitterAuctionFile) return;
 
-    setAuctionLoading(true);
+    setHitterAuctionLoading(true);
     let rowsProcessed = 0;
     let rowsSuccessful = 0;
 
     try {
-      const text = await auctionFile.text();
+      const text = await hitterAuctionFile.text();
       const parsed = parseAuctionValues(text);
       rowsProcessed = parsed.length;
 
@@ -510,23 +518,28 @@ export function PlayerImport() {
       const existingPlayers = await playersApi.getAll();
 
       // Match and update players (don't create new ones)
+      // Only update hitters (players with hitting positions: C, 1B, 2B, SS, 3B, OF)
+      const hitterPositions: import('@/types').Position[] = ['C', '1B', '2B', 'SS', '3B', 'OF', 'CI', 'MI', 'UTIL', 'BEN'];
       const toUpdate: Array<{ id: string; updates: Partial<import('@/types').Player> }> = [];
 
       for (const auction of parsed) {
         const matched = fuzzyMatchPlayerName(auction.name, existingPlayers);
         if (matched) {
-          // Update existing player with auction data
-          toUpdate.push({
-            id: matched.id,
-            updates: {
-              name: auction.name,
-              team: auction.team || matched.team,
-              positions: auction.positions.length > 0 ? auction.positions : matched.positions,
-              adp: auction.adp ?? matched.adp,
-              auction_value: auction.auction_value ?? matched.auction_value,
-            },
-          });
-          rowsSuccessful++;
+          // Only update if player has hitting positions
+          const hasHittingPosition = matched.positions.some(pos => hitterPositions.includes(pos));
+          if (hasHittingPosition) {
+            toUpdate.push({
+              id: matched.id,
+              updates: {
+                name: auction.name,
+                team: auction.team || matched.team,
+                positions: auction.positions.length > 0 ? auction.positions : matched.positions,
+                adp: auction.adp ?? matched.adp,
+                auction_value: auction.auction_value ?? matched.auction_value,
+              },
+            });
+            rowsSuccessful++;
+          }
         }
         // Skip if player not found (don't create new players from auction values)
       }
@@ -538,26 +551,26 @@ export function PlayerImport() {
 
       // Record upload history
       await importHistoryApi.create({
-        import_type: 'auction_values',
-        filename: auctionFile.name,
+        import_type: 'hitter_auction_values',
+        filename: hitterAuctionFile.name,
         rows_processed: rowsProcessed,
         rows_successful: rowsSuccessful,
         uploaded_at: new Date().toISOString(),
       });
 
       // Refresh history and players
-      const latest = await importHistoryApi.getLatest('auction_values');
-      setLastAuctionUpload(latest);
+      const latest = await importHistoryApi.getLatest('hitter_auction_values');
+      setLastHitterAuctionUpload(latest);
       await refetch();
 
       toast({
         title: 'Success',
-        description: `Updated ${rowsSuccessful} players with auction values`,
+        description: `Updated ${rowsSuccessful} hitters with auction values`,
       });
-      setAuctionFile(null);
+      setHitterAuctionFile(null);
     } catch (error: any) {
-      console.error('Error importing auction values:', error);
-      let errorMessage = 'Failed to import auction values';
+      console.error('Error importing hitter auction values:', error);
+      let errorMessage = 'Failed to import hitter auction values';
       
       if (error?.message) {
         errorMessage = error.message;
@@ -573,7 +586,104 @@ export function PlayerImport() {
         variant: 'destructive',
       });
     } finally {
-      setAuctionLoading(false);
+      setHitterAuctionLoading(false);
+    }
+  };
+
+  const handlePitcherAuctionUpload = async () => {
+    if (!pitcherAuctionFile) return;
+
+    setPitcherAuctionLoading(true);
+    let rowsProcessed = 0;
+    let rowsSuccessful = 0;
+
+    try {
+      const text = await pitcherAuctionFile.text();
+      const parsed = parseAuctionValues(text);
+      rowsProcessed = parsed.length;
+
+      if (parsed.length === 0) {
+        toast({
+          title: 'Error',
+          description: 'No valid players found in file',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Get all existing players for matching
+      const existingPlayers = await playersApi.getAll();
+
+      // Match and update players (don't create new ones)
+      // Only update pitchers (players with SP or RP positions)
+      const pitcherPositions: import('@/types').Position[] = ['SP', 'RP'];
+      const toUpdate: Array<{ id: string; updates: Partial<import('@/types').Player> }> = [];
+
+      for (const auction of parsed) {
+        const matched = fuzzyMatchPlayerName(auction.name, existingPlayers);
+        if (matched) {
+          // Only update if player has pitching positions
+          const hasPitchingPosition = matched.positions.some(pos => pitcherPositions.includes(pos));
+          if (hasPitchingPosition) {
+            toUpdate.push({
+              id: matched.id,
+              updates: {
+                name: auction.name,
+                team: auction.team || matched.team,
+                positions: auction.positions.length > 0 ? auction.positions : matched.positions,
+                adp: auction.adp ?? matched.adp,
+                auction_value: auction.auction_value ?? matched.auction_value,
+              },
+            });
+            rowsSuccessful++;
+          }
+        }
+        // Skip if player not found (don't create new players from auction values)
+      }
+
+      // Perform updates
+      if (toUpdate.length > 0) {
+        await playersApi.bulkUpdate(toUpdate);
+      }
+
+      // Record upload history
+      await importHistoryApi.create({
+        import_type: 'pitcher_auction_values',
+        filename: pitcherAuctionFile.name,
+        rows_processed: rowsProcessed,
+        rows_successful: rowsSuccessful,
+        uploaded_at: new Date().toISOString(),
+      });
+
+      // Refresh history and players
+      const latest = await importHistoryApi.getLatest('pitcher_auction_values');
+      setLastPitcherAuctionUpload(latest);
+      await refetch();
+
+      toast({
+        title: 'Success',
+        description: `Updated ${rowsSuccessful} pitchers with auction values`,
+      });
+      setPitcherAuctionFile(null);
+    } catch (error: any) {
+      console.error('Error importing pitcher auction values:', error);
+      let errorMessage = 'Failed to import pitcher auction values';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.error?.message) {
+        errorMessage = error.error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setPitcherAuctionLoading(false);
     }
   };
 
@@ -582,7 +692,7 @@ export function PlayerImport() {
       <CardHeader>
         <CardTitle>Import Player Data</CardTitle>
         <CardDescription>
-          Upload three separate CSV files to import player data. Upload hitter and pitcher projections first, then auction values.
+          Upload CSV files to import player data. Upload projections first, then auction values. Hitters and pitchers are uploaded separately.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -614,14 +724,25 @@ export function PlayerImport() {
         />
 
         <UploadSection
-          title="3. Auction Values CSV"
-          description="Upload auction dollar values, ADP, positions, and team information. This file should contain player names, their positions, auction values, and ADP. Only existing players will be updated (new players won't be created from this file)."
-          importType="auction_values"
-          file={auctionFile}
-          onFileChange={setAuctionFile}
-          onUpload={handleAuctionUpload}
-          loading={auctionLoading}
-          lastUpload={lastAuctionUpload}
+          title="3. Hitter Auction Values CSV"
+          description="Upload auction dollar values, ADP, positions, and team information for hitters. This file should contain player names, their positions, auction values, and ADP. Only existing hitters (C, 1B, 2B, SS, 3B, OF, CI, MI, UTIL, BEN) will be updated (new players won't be created from this file)."
+          importType="hitter_auction_values"
+          file={hitterAuctionFile}
+          onFileChange={setHitterAuctionFile}
+          onUpload={handleHitterAuctionUpload}
+          loading={hitterAuctionLoading}
+          lastUpload={lastHitterAuctionUpload}
+        />
+
+        <UploadSection
+          title="4. Pitcher Auction Values CSV"
+          description="Upload auction dollar values, ADP, positions, and team information for pitchers. This file should contain player names, their positions, auction values, and ADP. Only existing pitchers (SP, RP) will be updated (new players won't be created from this file)."
+          importType="pitcher_auction_values"
+          file={pitcherAuctionFile}
+          onFileChange={setPitcherAuctionFile}
+          onUpload={handlePitcherAuctionUpload}
+          loading={pitcherAuctionLoading}
+          lastUpload={lastPitcherAuctionUpload}
         />
       </CardContent>
     </Card>
