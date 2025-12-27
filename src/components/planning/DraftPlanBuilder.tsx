@@ -76,14 +76,14 @@ export function DraftPlanBuilder({ draft, totalPicks }: DraftPlanBuilderProps) {
             <div key={entry.pickNumber} className="flex items-center gap-2">
               <Label className="w-24">Pick {entry.pickNumber}</Label>
               <Select
-                value={entry.position || ''}
-                onValueChange={(value) => updatePlanEntry(entry.pickNumber, value === '' ? null : (value as Position))}
+                value={entry.position || '__none__'}
+                onValueChange={(value) => updatePlanEntry(entry.pickNumber, value === '__none__' ? null : (value as Position))}
               >
                 <SelectTrigger className="flex-1">
                   <SelectValue placeholder="No plan" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No plan</SelectItem>
+                  <SelectItem value="__none__">No plan</SelectItem>
                   {POSITIONS.filter((p) => p !== '').map((pos) => (
                     <SelectItem key={pos} value={pos}>
                       {pos}

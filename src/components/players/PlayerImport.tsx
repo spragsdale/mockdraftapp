@@ -72,8 +72,12 @@ function UploadSection({ title, description, importType, file, onFileChange, onU
 }
 
 export function PlayerImport() {
+  console.log('[PlayerImport] Component rendering...');
+  
   const { players, refetch } = usePlayers();
   const { toast } = useToast();
+  
+  console.log('[PlayerImport] Hooks initialized, players count:', players?.length || 0);
 
   const [hitterFile, setHitterFile] = useState<File | null>(null);
   const [pitcherFile, setPitcherFile] = useState<File | null>(null);
@@ -87,24 +91,88 @@ export function PlayerImport() {
   const [lastPitcherUpload, setLastPitcherUpload] = useState<ImportHistory | null>(null);
   const [lastAuctionUpload, setLastAuctionUpload] = useState<ImportHistory | null>(null);
 
+  const [error, setError] = useState<string | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
   // Fetch upload history on mount
   useEffect(() => {
+    console.log('[PlayerImport] Component mounted, fetching upload history...');
+    setError(null);
+    setIsLoadingHistory(true);
+    
     const fetchHistory = async () => {
       try {
+        console.log('[PlayerImport] Starting to fetch upload history for all types...');
+        
         const [hitter, pitcher, auction] = await Promise.all([
-          importHistoryApi.getLatest('hitter_projections'),
-          importHistoryApi.getLatest('pitcher_projections'),
-          importHistoryApi.getLatest('auction_values'),
+          importHistoryApi.getLatest('hitter_projections').catch((err) => {
+            console.warn('[PlayerImport] Failed to fetch hitter upload history:', err);
+            return null;
+          }),
+          importHistoryApi.getLatest('pitcher_projections').catch((err) => {
+            console.warn('[PlayerImport] Failed to fetch pitcher upload history:', err);
+            return null;
+          }),
+          importHistoryApi.getLatest('auction_values').catch((err) => {
+            console.warn('[PlayerImport] Failed to fetch auction upload history:', err);
+            return null;
+          }),
         ]);
+        
+        console.log('[PlayerImport] Upload history fetched:', { hitter, pitcher, auction });
         setLastHitterUpload(hitter);
         setLastPitcherUpload(pitcher);
         setLastAuctionUpload(auction);
-      } catch (error) {
-        console.error('Failed to fetch upload history', error);
+        setIsLoadingHistory(false);
+      } catch (error: any) {
+        console.error('[PlayerImport] Critical error fetching upload history:', error);
+        console.error('[PlayerImport] Error details:', {
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint,
+          stack: error?.stack,
+        });
+        setError(`Failed to load upload history: ${error?.message || 'Unknown error'}`);
+        setIsLoadingHistory(false);
+        // Don't crash - upload history is not critical for functionality
       }
     };
+    
     fetchHistory();
   }, []);
+
+  // Error boundary wrapper
+  if (error && !isLoadingHistory) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Import Player Data</CardTitle>
+          <CardDescription>Upload player projections and auction values from CSV files</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="p-4 border border-destructive rounded-lg bg-destructive/10">
+            <p className="text-sm font-semibold text-destructive mb-2">Error Loading Component</p>
+            <p className="text-sm text-muted-foreground mb-4">{error}</p>
+            <p className="text-xs text-muted-foreground">
+              Check the browser console (F12) for more details. You can still use the upload functionality below.
+            </p>
+            <Button
+              onClick={() => {
+                setError(null);
+                setIsLoadingHistory(true);
+                window.location.reload();
+              }}
+              variant="outline"
+              className="mt-4"
+            >
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleHitterUpload = async () => {
     if (!hitterFile) return;
@@ -518,6 +586,11 @@ export function PlayerImport() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {isLoadingHistory && (
+          <div className="p-2 text-sm text-muted-foreground">
+            Loading upload history...
+          </div>
+        )}
         <UploadSection
           title="1. Hitter Projections CSV"
           description="Upload hitter stat projections and ADP. This file should contain batting statistics (HR, RBI, Runs, SB, AVG, OBP, SLG, etc.) and Average Draft Position for all hitters. Players will be matched by name and updated, or created if they don't exist."

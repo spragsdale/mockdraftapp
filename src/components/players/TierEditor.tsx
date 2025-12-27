@@ -128,16 +128,16 @@ export function TierEditor({ position }: TierEditorProps) {
                         <TableCell>{player.adp ?? '-'}</TableCell>
                         <TableCell>
                           <Select
-                            value={player.tier?.toString() || ''}
+                            value={player.tier?.toString() || '__none__'}
                             onValueChange={(value) =>
-                              handleTierUpdate(player.id, value === '' ? null : parseInt(value))
+                              handleTierUpdate(player.id, value === '__none__' ? null : parseInt(value))
                             }
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">No Tier</SelectItem>
+                              <SelectItem value="__none__">No Tier</SelectItem>
                               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((t) => (
                                 <SelectItem key={t} value={t.toString()}>
                                   Tier {t}

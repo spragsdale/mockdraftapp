@@ -15,6 +15,11 @@ export const importHistoryApi = {
         // No rows found
         return null;
       }
+      // Handle 406 Not Acceptable (RLS policy issue) or other errors gracefully
+      if (error.code === 'PGRST301' || error.message?.includes('406')) {
+        console.warn('RLS policy issue or table not accessible:', error.message);
+        return null;
+      }
       throw error;
     }
     return data;

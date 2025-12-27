@@ -6,11 +6,13 @@ ALTER TABLE players ADD COLUMN IF NOT EXISTS ab NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS h NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS doubles NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS triples NUMERIC;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS hr NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS runs NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS rbi NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS bb NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS so NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS hbp NUMERIC;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS sb NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS cs NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS avg NUMERIC;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS obp NUMERIC;
@@ -57,6 +59,9 @@ CREATE INDEX IF NOT EXISTS idx_import_history_type_uploaded ON import_history(im
 
 -- Enable Row Level Security
 ALTER TABLE import_history ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policy if it exists (to avoid conflicts)
+DROP POLICY IF EXISTS "Allow all operations on import_history" ON import_history;
 
 -- Create policy (allow all for now - adjust based on auth needs)
 CREATE POLICY "Allow all operations on import_history" ON import_history FOR ALL USING (true) WITH CHECK (true);
